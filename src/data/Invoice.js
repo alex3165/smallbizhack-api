@@ -8,13 +8,15 @@ class Invoice {
   }
 
   create(orderData) {
-    return (new Product(this.qb, orderData.productId)).fetch()
+    return Promise.all(
+      orderData.products.map(p => (new Product(this.qb, p.productId)).fetch())
+    )
     .then(
-      product => {
+      products => {
         const invoice = {
-          "Line": [
+          "Line": products.map((product, i) => (
             {
-              "Amount": product.price*orderData.quantity,
+              "Amount": product.price*orderData.products[i].quantity,
               "DetailType": "SalesItemLineDetail",
               "SalesItemLineDetail": {
                 "TaxInclusiveAmt": null,
@@ -22,13 +24,13 @@ class Invoice {
                   "value": product.id
                 },
                 "UnitPrice": product.price,
-                "Qty": orderData.quantity,
+                "Qty": orderData.products[i].quantity,
                 "TaxCodeRef": {
                   "value": "3"
                 }
               }
             }
-          ],
+          )),
           "CustomerRef": {
             "value": orderData.customerId,
           }
