@@ -9,6 +9,13 @@ class DB {
     );
   }
 
+  getMerchant(id) {
+    const merchantData = data.merchants[id];
+    if(!merchantData) return Promise.error('Not found');
+
+    return (new Merchant(id, merchantData)).populateMerchant();
+  }
+
 }
 
 module.exports = DB;
