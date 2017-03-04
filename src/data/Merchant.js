@@ -1,4 +1,5 @@
 const QuickBooks = require('node-quickbooks');
+const Invoice = require('./Invoice');
 
 class Merchant {
   constructor(id, data) {
@@ -21,6 +22,14 @@ class Merchant {
       const cbToPromise = (err, data) => err?reject(err):resolve(data);
       this.qb.getCompanyInfo(this.id, cbToPromise);
     });
+  }
+
+  getInvoices() {
+    return new Promise((resolve, reject) => {
+      const cbToPromise = (err, data) => err?reject(err):resolve(data);
+      this.qb.findInvoices(`where Balance!='0'`, cbToPromise);
+    })
+    .then(response => Promise.all(response.QueryResponse.Invoice.map(invoiceData => (new Invoice(this.qb, invoiceData).format()))))
   }
 
   getProducts() {

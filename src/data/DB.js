@@ -1,5 +1,5 @@
 const data = require('./defaultData');
-const Merchant = require('./merchant');
+const Merchant = require('./Merchant');
 
 class DB {
 
@@ -14,6 +14,13 @@ class DB {
     if(!merchantData) return Promise.error('Not found');
 
     return (new Merchant(id, merchantData)).populateMerchant();
+  }
+
+  getInvoices(merchantId) {
+    const merchantData = data.merchants[merchantId];
+    if(!merchantData) return Promise.error('Not found');
+
+    return (new Merchant(merchantId, merchantData).getInvoices());
   }
 
 }
