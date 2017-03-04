@@ -7,20 +7,35 @@ class Invoice {
     this.data = invoiceData;
   }
 
+
+  fetchCustomerImage(customerId) {
+    const whereClause = `where AttachableRef.EntityRef.value in ('${customerId}')`;
+
+    return new Promise((resolve, reject) => {
+      const cbToPromise = (err, data) => err?reject(err):resolve(data);
+      this.qb.findAttachables(whereClause, cbToPromise);
+    })
+    .then(response => (response.QueryResponse.Attachable || []).map(a => a.TempDownloadUri));
+  }
+
   format() {
-    return Promise.all(
-      this.data.Line
-      .filter(l => l.SalesItemLineDetail !== undefined)
-      .map(l => (new Product(this.qb, l.SalesItemLineDetail.ItemRef.value)).fetch())
-    )
+    return Promise.all([
+      Promise.all(
+        this.data.Line
+        .filter(l => l.SalesItemLineDetail !== undefined)
+        .map(l => (new Product(this.qb, l.SalesItemLineDetail.ItemRef.value)).fetch())
+      ),
+      this.fetchCustomerImage(this.data.CustomerRef.value)
+    ])
     .then(
-      products => ({
+      data => ({
         id: this.data.Id,
         customer: {
           id: this.data.CustomerRef.value,
-          name: this.data.CustomerRef.name
+          name: this.data.CustomerRef.name,
+          image: data[1].length && data[1][0]
         },
-        products: products,
+        products: data[0],
         total: this.data.TotalAmt
       })
     );
