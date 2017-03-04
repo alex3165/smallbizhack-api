@@ -3,9 +3,9 @@ const Merchant = require('./Merchant');
 
 class DB {
 
-  getMerchants() {
+  getMerchants(userLocation) {
     return Promise.all(
-      Object.keys(data.merchants || []).map(m => (new Merchant(m, data.merchants[m])).populateMerchant())
+      Object.keys(data.merchants || []).map(m => (new Merchant(m, data.merchants[m])).populateMerchant(userLocation))
     );
   }
 

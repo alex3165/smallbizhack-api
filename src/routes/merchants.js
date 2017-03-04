@@ -13,6 +13,6 @@ module.exports = express.Router()
   .then(merchant => res.status(200).send(merchant));
 })
 .get('/merchants', (req, res) => {
-  return database.getMerchants(req.query.lat, req.query.lng)
+  return database.getMerchants({ lat: req.query.lat, lng: req.query.lng })
   .then(merchants => res.status(200).send(merchants));
 });

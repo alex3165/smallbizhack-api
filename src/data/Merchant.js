@@ -1,4 +1,5 @@
 const QuickBooks = require('node-quickbooks');
+const GreatCircle = require('great-circle')
 const Invoice = require('./Invoice');
 const Product = require('./Product');
 
@@ -41,7 +42,7 @@ class Merchant {
     .then(response => response.QueryResponse.Item.map(i => i.Name).filter(i => ['Hours', 'Services'].indexOf(i) === -1))
   }
 
-  populateMerchant() {
+  populateMerchant(userLocation) {
     return Promise.all([
       (new Product(this.qb)).getProducts(),
       this.getCompanyInfo(),
@@ -54,6 +55,7 @@ class Merchant {
       categories: data[2],
       image: 'https://farm1.staticflickr.com/110/296976979_16fae1c07b_z_d.jpg',
       location: this.location,
+      distance: GreatCircle.distance(this.location.lat, this.location.lng, userLocation.lat, userLocation.lng),
       products: data[0]
     }));
   }
