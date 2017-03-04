@@ -8,11 +8,11 @@ module.exports = express.Router()
   return database.getInvoices(req.params.id)
   .then(merchants => res.status(200).send(merchants));
 })
-.use('/merchants/:id', (req, res) => {
+.get('/merchants/:id', (req, res) => {
   return database.getMerchant(req.params.id)
   .then(merchant => res.status(200).send(merchant));
 })
-.use('/merchants', (req, res) => {
-  return database.getMerchants()
+.get('/merchants', (req, res) => {
+  return database.getMerchants(req.query.lat, req.query.lng)
   .then(merchants => res.status(200).send(merchants));
 });
