@@ -7,6 +7,40 @@ class Invoice {
     this.data = invoiceData;
   }
 
+  create(orderData) {
+    return (new Product(this.qb, orderData.productId)).fetch()
+    .then(
+      product => {
+        const invoice = {
+          "Line": [
+            {
+              "Amount": product.price*orderData.quantity,
+              "DetailType": "SalesItemLineDetail",
+              "SalesItemLineDetail": {
+                "TaxInclusiveAmt": null,
+                "ItemRef": {
+                  "value": product.id
+                },
+                "UnitPrice": product.price,
+                "Qty": orderData.quantity,
+                "TaxCodeRef": {
+                  "value": "3"
+                }
+              }
+            }
+          ],
+          "CustomerRef": {
+            "value": orderData.customerId,
+          }
+        };
+
+        return new Promise((resolve, reject) => {
+          const cbToPromise = (err, data) => err?reject(err):resolve(data);
+          return this.qb.createInvoice(invoice, cbToPromise);
+        });
+      }
+    );
+  }
 
   fetchCustomerImage(customerId) {
     const whereClause = `where AttachableRef.EntityRef.value in ('${customerId}')`;
