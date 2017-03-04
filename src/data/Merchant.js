@@ -1,5 +1,6 @@
 const QuickBooks = require('node-quickbooks');
 const Invoice = require('./Invoice');
+const Product = require('./Product');
 
 class Merchant {
   constructor(id, data) {
@@ -32,41 +33,9 @@ class Merchant {
     .then(response => Promise.all(response.QueryResponse.Invoice.map(invoiceData => (new Invoice(this.qb, invoiceData).format()))))
   }
 
-  getProducts() {
-    return new Promise((resolve, reject) => {
-      const cbToPromise = (err, data) => err?reject(err):resolve(data);
-      this.qb.findItems(`where Type='Inventory'`, cbToPromise);
-    })
-    // Format each items§
-    .then(response => response.QueryResponse.Item.map(this.formatItem))
-    // Fetch images for all products
-    .then(products => Promise.all([products, this.getImages(products)]))
-    // Attach images to individual products
-    .then(data => data[0].map(product => this.attachImage(product, data[1])));
-  }
-  
-  getImages(products) {
-    const whereClause = `where AttachableRef.EntityRef.value in (${products.map(p => `'${p.id}'`)})`;
-
-    return new Promise((resolve, reject) => {
-      const cbToPromise = (err, data) => err?reject(err):resolve(data);
-      this.qb.findAttachables(whereClause, cbToPromise);
-    })
-    .then(response => response.QueryResponse.Attachable.map(a => ({
-      productId: a.AttachableRef[0].EntityRef.value,
-      image: a.TempDownloadUri
-    })));
-  }
-
-  attachImage(product, images) {
-    return Object.assign({}, product, {
-      images: images.filter(i => i.productId === product.id).map(i => i.image)
-    });
-  }
-
   populateMerchant() {
     return Promise.all([
-      this.getProducts(),
+      (new Product(this.qb)).getProducts(),
       this.getCompanyInfo()
     ])
     .then(data => ({
@@ -76,14 +45,6 @@ class Merchant {
       location: this.location,
       products: data[0]
     }));
-  }
-
-  formatItem(qbItem) {
-    return {
-      id: qbItem.Id,
-      name: qbItem.Name,
-      price: qbItem.UnitPrice
-    };
   }
 
 }

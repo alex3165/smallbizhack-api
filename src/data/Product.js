@@ -15,6 +15,19 @@ class Product {
     .then(product => Promise.all([product, this.getImages([product])]))
     .then(data => this.attachImage(data[0], data[1]));
   }
+
+  getProducts() {
+    return new Promise((resolve, reject) => {
+      const cbToPromise = (err, data) => err?reject(err):resolve(data);
+      this.qb.findItems(`where Type='Inventory'`, cbToPromise);
+    })
+    // Format each items§
+    .then(response => response.QueryResponse.Item.map(this.format))
+    // Fetch images for all products
+    .then(products => Promise.all([products, this.getImages(products)]))
+    // Attach images to individual products
+    .then(data => data[0].map(product => this.attachImage(product, data[1])));
+  }
   
   getImages(products) {
     const whereClause = `where AttachableRef.EntityRef.value in (${products.map(p => `'${p.id}'`)})`;
