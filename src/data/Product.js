@@ -38,7 +38,7 @@ class Product {
     })
     .then(response => response.QueryResponse.Attachable.map(a => ({
       productId: a.AttachableRef[0].EntityRef.value,
-      image: a.TempDownloadUri
+      image: a.ThumbnailTempDownloadUri
     })));
   }
 
