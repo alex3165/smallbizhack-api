@@ -16,6 +16,13 @@ class Merchant {
     );
   }
 
+  getCompanyInfo() {
+    return new Promise((resolve, reject) => {
+      const cbToPromise = (err, data) => err?reject(err):resolve(data);
+      this.qb.getCompanyInfo(this.id, cbToPromise);
+    });
+  }
+
   getProducts() {
     return new Promise((resolve, reject) => {
       const cbToPromise = (err, data) => err?reject(err):resolve(data);
@@ -49,12 +56,16 @@ class Merchant {
   }
 
   populateMerchant() {
-    return this.getProducts()
-    .then(products => ({
+    return Promise.all([
+      this.getProducts(),
+      this.getCompanyInfo()
+    ])
+    .then(data => ({
       id: this.id,
-      name: 'tintin',
+      name: data[1].CompanyName,
+      image: 'https://cdn.pixabay.com/photo/2013/03/29/20/45/netherlands-97830_640.jpg',
       location: this.location,
-      products: products
+      products: data[0]
     }));
   }
 
