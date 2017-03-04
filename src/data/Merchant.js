@@ -55,7 +55,7 @@ class Merchant {
       categories: data[2],
       image: 'https://farm1.staticflickr.com/110/296976979_16fae1c07b_z_d.jpg',
       location: this.location,
-      distance: GreatCircle.distance(this.location.lat, this.location.lng, userLocation.lat, userLocation.lng),
+      distance: userLocation.lat && GreatCircle.distance(this.location.lat, this.location.lng, userLocation.lat, userLocation.lng),
       products: data[0]
     }));
   }
