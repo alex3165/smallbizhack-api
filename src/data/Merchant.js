@@ -18,10 +18,37 @@ class Merchant {
 
   getProducts() {
     return new Promise((resolve, reject) => {
-      const cb = (err, data) => err?reject(err):resolve(data);
-      this.qb.findItems(`where Type='Inventory'`, cb);
+      const cbToPromise = (err, data) => err?reject(err):resolve(data);
+      this.qb.findItems(`where Type='Inventory'`, cbToPromise);
     })
-    .then(response => response.QueryResponse.Item.map(this.formatItem));
+    // Format each items§
+    .then(response => response.QueryResponse.Item.map(this.formatItem))
+    // Fetch images for all products
+    .then(products => Promise.all([products, this.getImages(products)]))
+    // Attach images to individual products
+    .then(data => data[0].map(product => this.attachImage(product, data[1])));
+  }
+  
+  getImages(products) {
+    const whereClause = products.reduce((acc, p,i) => {
+      if(i === 0) return acc.concat(` AttachableRef.EntityRef.value='${p.id}'`);
+      else return acc.concat(` OR AttachableRef.EntityRef.value='${p.id}'`);
+    }, 'where');
+
+    return new Promise((resolve, reject) => {
+      const cbToPromise = (err, data) => err?reject(err):resolve(data);
+      this.qb.findAttachables(whereClause, cbToPromise);
+    })
+    .then(response => response.QueryResponse.Attachable.map(a => ({
+      productId: a.AttachableRef[0].EntityRef.value,
+      image: a.TempDownloadUri
+    })));
+  }
+
+  attachImage(product, images) {
+    return Object.assign({}, product, {
+      images: images.filter(i => i.productId === product.id).map(i => i.image)
+    });
   }
 
   populateMerchant() {
