@@ -30,10 +30,7 @@ class Merchant {
   }
   
   getImages(products) {
-    const whereClause = products.reduce((acc, p,i) => {
-      if(i === 0) return acc.concat(` AttachableRef.EntityRef.value='${p.id}'`);
-      else return acc.concat(` OR AttachableRef.EntityRef.value='${p.id}'`);
-    }, 'where');
+    const whereClause = `where AttachableRef.EntityRef.value in (${products.map(p => `'${p.id}'`)})`;
 
     return new Promise((resolve, reject) => {
       const cbToPromise = (err, data) => err?reject(err):resolve(data);
