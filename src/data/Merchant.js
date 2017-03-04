@@ -50,7 +50,7 @@ class Merchant {
     .then(data => ({
       id: this.id,
       name: data[1].CompanyName,
-      name: data[1].CompanyAddr.City,
+      city: data[1].CompanyAddr.City,
       categories: data[2],
       image: 'https://farm1.staticflickr.com/110/296976979_16fae1c07b_z_d.jpg',
       location: this.location,
