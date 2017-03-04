@@ -63,7 +63,7 @@ class Merchant {
     .then(data => ({
       id: this.id,
       name: data[1].CompanyName,
-      image: 'https://cdn.pixabay.com/photo/2013/03/29/20/45/netherlands-97830_640.jpg',
+      image: 'https://farm1.staticflickr.com/110/296976979_16fae1c07b_z_d.jpg',
       location: this.location,
       products: data[0]
     }));
