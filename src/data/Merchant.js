@@ -57,7 +57,7 @@ class Merchant {
       image: this.image,
       location: this.location,
       distance: userLocation.lat && GreatCircle.distance(this.location.lat, this.location.lng, userLocation.lat, userLocation.lng),
-      products: data[0]
+      products: data[0].reverse()
     }));
   }
 
