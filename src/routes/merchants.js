@@ -13,7 +13,7 @@ module.exports = express.Router()
 })
 .get('/merchants/:id/invoices', (req, res) => {
   return database.getInvoices(req.params.id)
-  .then(merchants => res.status(200).send(merchants));
+  .then(merchants => res.status(200).send(merchants.reverse()));
 })
 .get('/merchants/:id', (req, res) => {
   return database.getMerchant(req.params.id)
