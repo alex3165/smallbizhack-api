@@ -6,6 +6,7 @@ const Product = require('./Product');
 class Merchant {
   constructor(id, data) {
     this.id = id;
+    this.image = data.image;
     this.location = data.location;
 
     this.qb = new QuickBooks(
@@ -53,7 +54,7 @@ class Merchant {
       name: data[1].CompanyName,
       city: data[1].CompanyAddr.City,
       categories: data[2],
-      image: 'https://farm1.staticflickr.com/110/296976979_16fae1c07b_z_d.jpg',
+      image: this.image,
       location: this.location,
       distance: userLocation.lat && GreatCircle.distance(this.location.lat, this.location.lng, userLocation.lat, userLocation.lng),
       products: data[0]
